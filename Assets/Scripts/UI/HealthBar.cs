@@ -35,15 +35,14 @@ namespace UnityRoyale
 
         public void Move()
         {
-            if (healthBarController.TransformToFollow != null) //TODO: do i still need this
-                transform.position = healthBarController.TransformToFollow.position;
+            transform.position = healthBarController.PositionToFollow;
         }
     }
 }
 
 public class HealthBarController
 {
-    public Transform TransformToFollow { get; }
+    public Vector3 PositionToFollow { get; }
     public Color BarColor { get; }
     public Vector3 LocalPosition { get; }
 
@@ -56,7 +55,7 @@ public class HealthBarController
     public HealthBarController(IThinkingPlaceable placeable)
     {
         _originalHp = _currentHp = placeable.hitPoints;
-        TransformToFollow = placeable.transform;
+        PositionToFollow = placeable.position;
         BarColor = placeable.faction == Faction.Player ? _red : _blue;
         LocalPosition = new Vector3(0f,
             (placeable.pType == PlaceableType.Unit) ? 3f : 6f,
@@ -74,7 +73,7 @@ public class HealthBarController
 public interface IThinkingPlaceable
 {
     public float hitPoints { get; }
-    public Transform transform { get; }
+    public Vector3 position { get; }
     public Faction faction { get; }
     public PlaceableType pType { get; }
 }

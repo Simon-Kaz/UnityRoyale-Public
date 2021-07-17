@@ -27,6 +27,8 @@ namespace UnityRoyale
         [HideInInspector] public ThinkingPlaceable target;
         [HideInInspector] public HealthBar healthBar;
         [HideInInspector] public float hitPoints { get; set; }
+        public Vector3 position => transform.position;
+
         [HideInInspector] public float attackRange;
         [HideInInspector] public float attackRatio;
         [HideInInspector] public float lastBlowTime = -1000f;
