@@ -13,7 +13,7 @@ namespace UnityRoyale
         public DeckData playersDeck;
         public MeshRenderer forbiddenAreaRenderer;
 
-        public UnityAction<CardData, Vector3, Placeable.Faction> OnCardUsed;
+        public UnityAction<CardData, Vector3, Faction> OnCardUsed;
 
         [Header("UI Elements")] public RectTransform backupCardTransform; //the smaller card that sits in the deck
         public RectTransform cardsDashboard; //the UI panel that contains the actual playable cards
@@ -162,7 +162,7 @@ namespace UnityRoyale
             {
                 if (OnCardUsed != null)
                     OnCardUsed(cards[cardId].cardData, hit.point + inputCreationOffset,
-                        Placeable.Faction.Player); //GameManager picks this up to spawn the actual Placeable
+                        Faction.Player); //GameManager picks this up to spawn the actual Placeable
 
                 ClearPreviewObjects();
                 Destroy(cards[cardId].gameObject); //remove the card itself

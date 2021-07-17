@@ -65,8 +65,8 @@ namespace UnityRoyale
         private void Start()
         {
 			//Insert castles into lists
-			SetupPlaceable(playersCastle, castlePData, Placeable.Faction.Player);
-            SetupPlaceable(opponentCastle, castlePData, Placeable.Faction.Opponent);
+			SetupPlaceable(playersCastle, castlePData, Faction.Player);
+            SetupPlaceable(opponentCastle, castlePData, Faction.Opponent);
 
 			cardManager.LoadDeck();
             CPUOpponent.LoadDeck();
@@ -100,7 +100,7 @@ namespace UnityRoyale
 				{
 					case ThinkingPlaceable.States.Idle:
 						//this if is for innocuous testing Units
-						if(thinkingPlaceable.targetType == Placeable.PlaceableTarget.None)
+						if(thinkingPlaceable.targetType == PlaceableTarget.None)
 							break;
 
 						//find closest target and assign it to the ThinkingPlaceable
@@ -157,14 +157,14 @@ namespace UnityRoyale
             updateAllPlaceables = false; //is set to true by UseCard()
         }
 
-        private List<ThinkingPlaceable> GetAttackList(Placeable.Faction f, Placeable.PlaceableTarget t)
+        private List<ThinkingPlaceable> GetAttackList(Faction f, PlaceableTarget t)
         {
             switch(t)
             {
-                case Placeable.PlaceableTarget.Both:
-                    return (f == Placeable.Faction.Player) ? allOpponents : allPlayers;
-				case Placeable.PlaceableTarget.OnlyBuildings:
-                    return (f == Placeable.Faction.Player) ? opponentBuildings : playerBuildings;
+                case PlaceableTarget.Both:
+                    return (f == Faction.Player) ? allOpponents : allPlayers;
+				case PlaceableTarget.OnlyBuildings:
+                    return (f == Faction.Player) ? opponentBuildings : playerBuildings;
 				default:
 					Debug.LogError("What faction is this?? Not Player nor Opponent.");
 					return null;
@@ -191,14 +191,14 @@ namespace UnityRoyale
             return targetFound;
         }
 
-        public void UseCard(CardData cardData, Vector3 position, Placeable.Faction pFaction)
+        public void UseCard(CardData cardData, Vector3 position, Faction pFaction)
         {
             for(int pNum=0; pNum<cardData.placeablesData.Length; pNum++)
             {
                 PlaceableData pDataRef = cardData.placeablesData[pNum];
-                Quaternion rot = (pFaction == Placeable.Faction.Player) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
+                Quaternion rot = (pFaction == Faction.Player) ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f);
                 //Prefab to spawn is the associatedPrefab if it's the Player faction, otherwise it's alternatePrefab. But if alternatePrefab is null, then first one is taken
-                GameObject prefabToSpawn = (pFaction == Placeable.Faction.Player) ? pDataRef.associatedPrefab : ((pDataRef.alternatePrefab == null) ? pDataRef.associatedPrefab : pDataRef.alternatePrefab);
+                GameObject prefabToSpawn = (pFaction == Faction.Player) ? pDataRef.associatedPrefab : ((pDataRef.alternatePrefab == null) ? pDataRef.associatedPrefab : pDataRef.alternatePrefab);
                 GameObject newPlaceableGO = Instantiate<GameObject>(prefabToSpawn, position + cardData.relativeOffsets[pNum], rot);
 
                 SetupPlaceable(newPlaceableGO, pDataRef, pFaction);
@@ -212,12 +212,12 @@ namespace UnityRoyale
 
 
         //setups all scripts and listeners on a Placeable GameObject
-        private void SetupPlaceable(GameObject go, PlaceableData pDataRef, Placeable.Faction pFaction)
+        private void SetupPlaceable(GameObject go, PlaceableData pDataRef, Faction pFaction)
         {
             //Add the appropriate script
                 switch(pDataRef.pType)
                 {
-                    case Placeable.PlaceableType.Unit:
+                    case PlaceableType.Unit:
                         Unit uScript = go.GetComponent<Unit>();
                         uScript.Activate(pFaction, pDataRef); //enables NavMeshAgent
 						uScript.OnDealDamage += OnPlaceableDealtDamage;
@@ -226,8 +226,8 @@ namespace UnityRoyale
                         UIManager.AddHealthUI(uScript);
                         break;
 
-                    case Placeable.PlaceableType.Building:
-                    case Placeable.PlaceableType.Castle:
+                    case PlaceableType.Building:
+                    case PlaceableType.Castle:
                         Building bScript = go.GetComponent<Building>();
                         bScript.Activate(pFaction, pDataRef);
 						bScript.OnDealDamage += OnPlaceableDealtDamage;
@@ -236,7 +236,7 @@ namespace UnityRoyale
                         UIManager.AddHealthUI(bScript);
 
                         //special case for castles
-                        if(pDataRef.pType == Placeable.PlaceableType.Castle)
+                        if(pDataRef.pType == PlaceableType.Castle)
                         {
                             bScript.OnDie += OnCastleDead;
                         }
@@ -244,13 +244,13 @@ namespace UnityRoyale
                         navMesh.BuildNavMesh(); //rebake the Navmesh
                         break;
 
-                    case Placeable.PlaceableType.Obstacle:
+                    case PlaceableType.Obstacle:
                         Obstacle oScript = go.GetComponent<Obstacle>();
                         oScript.Activate(pDataRef);
                         navMesh.BuildNavMesh(); //rebake the Navmesh
                         break;
 
-                    case Placeable.PlaceableType.Spell:
+                    case PlaceableType.Spell:
                         //Spell sScript = newPlaceable.AddComponent<Spell>();
                         //sScript.Activate(pFaction, cardData.hitPoints);
                         //TODO: activate the spell and… ?
@@ -313,7 +313,7 @@ namespace UnityRoyale
 
             switch(p.pType)
             {
-                case Placeable.PlaceableType.Unit:
+                case PlaceableType.Unit:
 					Unit u = (Unit)p;
                     RemovePlaceableFromList(u);
 					u.OnDealDamage -= OnPlaceableDealtDamage;
@@ -322,8 +322,8 @@ namespace UnityRoyale
 					StartCoroutine(Dispose(u));
                     break;
 
-                case Placeable.PlaceableType.Building:
-                case Placeable.PlaceableType.Castle:
+                case PlaceableType.Building:
+                case PlaceableType.Castle:
 					Building b = (Building)p;
                     RemovePlaceableFromList(b);
 					UIManager.RemoveHealthUI(b);
@@ -332,15 +332,15 @@ namespace UnityRoyale
                     StartCoroutine(RebuildNavmesh()); //need to fix for normal buildings
 
 					//we don't dispose of the Castle
-					if(p.pType != Placeable.PlaceableType.Castle)
+					if(p.pType != PlaceableType.Castle)
 						StartCoroutine(Dispose(b));
                     break;
 
-                case Placeable.PlaceableType.Obstacle:
+                case PlaceableType.Obstacle:
                     StartCoroutine(RebuildNavmesh());
                     break;
 
-                case Placeable.PlaceableType.Spell:
+                case PlaceableType.Spell:
                     //TODO: can spells die?
                     break;
             }
@@ -367,27 +367,27 @@ namespace UnityRoyale
 
 	        switch (p.faction)
 	        {
-		        case Placeable.Faction.Player:
+		        case Faction.Player:
 		        {
 			        allPlayers.Add(p);
 
-			        if(p.pType == Placeable.PlaceableType.Unit)
+			        if(p.pType == PlaceableType.Unit)
 				        playerUnits.Add(p);
 			        else
 				        playerBuildings.Add(p);
 			        break;
 		        }
-		        case Placeable.Faction.Opponent:
+		        case Faction.Opponent:
 		        {
 			        allOpponents.Add(p);
 
-			        if(p.pType == Placeable.PlaceableType.Unit)
+			        if(p.pType == PlaceableType.Unit)
 				        opponentUnits.Add(p);
 			        else
 				        opponentBuildings.Add(p);
 			        break;
 		        }
-		        case Placeable.Faction.None:
+		        case Faction.None:
 			        break;
 		        default:
 			        Debug.LogError("Error in adding a Placeable in one of the player/opponent lists");
@@ -401,27 +401,27 @@ namespace UnityRoyale
 
 	        switch (p.faction)
 	        {
-		        case Placeable.Faction.Player:
+		        case Faction.Player:
 		        {
 			        allPlayers.Remove(p);
 
-			        if(p.pType == Placeable.PlaceableType.Unit)
+			        if(p.pType == PlaceableType.Unit)
 				        playerUnits.Remove(p);
 			        else
 				        playerBuildings.Remove(p);
 			        break;
 		        }
-		        case Placeable.Faction.Opponent:
+		        case Faction.Opponent:
 		        {
 			        allOpponents.Remove(p);
 
-			        if(p.pType == Placeable.PlaceableType.Unit)
+			        if(p.pType == PlaceableType.Unit)
 				        opponentUnits.Remove(p);
 			        else
 				        opponentBuildings.Remove(p);
 			        break;
 		        }
-		        case Placeable.Faction.None:
+		        case Faction.None:
 			        break;
 		        default:
 			        Debug.LogError("Error in removing a Placeable from one of the player/opponent lists");

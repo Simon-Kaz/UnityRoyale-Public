@@ -8,7 +8,7 @@ namespace UnityRoyale
     public class CPUOpponent : MonoBehaviour
     {
         public DeckData aiDeck;
-        public UnityAction<CardData, Vector3, Placeable.Faction> OnCardUsed;
+        public UnityAction<CardData, Vector3, Faction> OnCardUsed;
 
         private bool act = false;
         private Coroutine actingCoroutine;
@@ -59,7 +59,7 @@ namespace UnityRoyale
                 if(OnCardUsed != null)
 				{
 					Vector3 newPos = new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(3f, 8.5f));
-                    OnCardUsed(aiDeck.GetNextCardFromDeck(), newPos, Placeable.Faction.Opponent);
+                    OnCardUsed(aiDeck.GetNextCardFromDeck(), newPos, Faction.Opponent);
 				}
             }
 		}

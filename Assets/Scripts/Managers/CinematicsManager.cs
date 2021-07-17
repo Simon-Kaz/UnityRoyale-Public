@@ -10,9 +10,9 @@ namespace UnityRoyale
 	{
 		public PlayableDirector redCastleCollapse, blueCastleCollapse;
 
-		public void PlayCollapseCutscene(Placeable.Faction f)
+		public void PlayCollapseCutscene(Faction f)
 		{
-			if(f == Placeable.Faction.Player)
+			if(f == Faction.Player)
 			{
 				redCastleCollapse.Play();
 			}

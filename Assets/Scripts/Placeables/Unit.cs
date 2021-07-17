@@ -16,7 +16,7 @@ namespace UnityRoyale
 
         private void Awake()
         {
-            pType = Placeable.PlaceableType.Unit;
+            pType = PlaceableType.Unit;
 
             //find references to components
             animator = GetComponent<Animator>();

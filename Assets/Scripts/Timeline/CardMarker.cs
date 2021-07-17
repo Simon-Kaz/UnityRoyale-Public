@@ -13,7 +13,7 @@ namespace UnityRoyale
 	{
 		public CardData card;
 		public Vector3 position;
-		public Placeable.Faction faction;
+		public Faction faction;
 
 		//required by INotification but we're not actually using it
 		public PropertyName id { get { return new PropertyName(); } }

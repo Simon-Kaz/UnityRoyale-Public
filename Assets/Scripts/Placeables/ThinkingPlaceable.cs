@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace UnityRoyale
 {
-    public class ThinkingPlaceable : Placeable
+    public class ThinkingPlaceable : Placeable, IThinkingPlaceable
     {
         [HideInInspector] public States state = States.Dragged;
         public enum States
@@ -26,14 +26,13 @@ namespace UnityRoyale
 
         [HideInInspector] public ThinkingPlaceable target;
         [HideInInspector] public HealthBar healthBar;
-
-        [HideInInspector] public float hitPoints;
+        [HideInInspector] public float hitPoints { get; set; }
         [HideInInspector] public float attackRange;
         [HideInInspector] public float attackRatio;
         [HideInInspector] public float lastBlowTime = -1000f;
         [HideInInspector] public float damage;
 		[HideInInspector] public AudioClip attackAudioClip;
-        
+
         [HideInInspector] public float timeToActNext = 0f;
 
 		//Inspector references
@@ -90,12 +89,12 @@ namespace UnityRoyale
         {
             //Debug.Log("My target " + p.name + " is dead", gameObject);
             state = States.Idle;
-            
+
             target.OnDie -= TargetIsDead;
 
             timeToActNext = lastBlowTime + attackRatio;
         }
-        
+
         public bool IsTargetInRange()
         {
             return (transform.position-target.transform.position).sqrMagnitude <= attackRange*attackRange;
