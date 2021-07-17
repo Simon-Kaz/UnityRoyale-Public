@@ -24,8 +24,7 @@ namespace UnityRoyale
 		{
 			targetDeck.CardsRetrieved((List<CardData>)obj.Result);
 
-            if(OnDeckLoaded != null)
-                OnDeckLoaded();
+            OnDeckLoaded?.Invoke();
 
             Destroy(this);
 		}

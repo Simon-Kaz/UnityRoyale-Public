@@ -90,44 +90,41 @@ namespace UnityRoyale
                 return;
 
             ThinkingPlaceable targetToPass; //ref
-			ThinkingPlaceable p; //ref
 
-			for(int pN=0; pN<allThinkingPlaceables.Count; pN++)
-            {
-                p = allThinkingPlaceables[pN];
+            foreach (var thinkingPlaceable in allThinkingPlaceables)
+			{
+				if(updateAllPlaceables)
+					thinkingPlaceable.state = ThinkingPlaceable.States.Idle; //forces the assignment of a target in the switch below
 
-                if(updateAllPlaceables)
-                    p.state = ThinkingPlaceable.States.Idle; //forces the assignment of a target in the switch below
+				switch(thinkingPlaceable.state)
+				{
+					case ThinkingPlaceable.States.Idle:
+						//this if is for innocuous testing Units
+						if(thinkingPlaceable.targetType == Placeable.PlaceableTarget.None)
+							break;
 
-                switch(p.state)
-                {
-                    case ThinkingPlaceable.States.Idle:
-                        //this if is for innocuous testing Units
-                        if(p.targetType == Placeable.PlaceableTarget.None)
-                            break;
-
-                        //find closest target and assign it to the ThinkingPlaceable
-                        bool targetFound = FindClosestInList(p.transform.position, GetAttackList(p.faction, p.targetType), out targetToPass);
-                        if(!targetFound) Debug.LogError("No more targets!"); //this should only happen on Game Over
-                        p.SetTarget(targetToPass);
-						p.Seek();
-                        break;
+						//find closest target and assign it to the ThinkingPlaceable
+						bool targetFound = FindClosestInList(thinkingPlaceable.transform.position, GetAttackList(thinkingPlaceable.faction, thinkingPlaceable.targetType), out targetToPass);
+						if(!targetFound) Debug.LogError("No more targets!"); //this should only happen on Game Over
+						thinkingPlaceable.SetTarget(targetToPass);
+						thinkingPlaceable.Seek();
+						break;
 
 
-                    case ThinkingPlaceable.States.Seeking:
-						if(p.IsTargetInRange())
-                    	{
-							p.StartAttack();
+					case ThinkingPlaceable.States.Seeking:
+						if(thinkingPlaceable.IsTargetInRange())
+						{
+							thinkingPlaceable.StartAttack();
 						}
-                        break;
-                        
+						break;
+
 
 					case ThinkingPlaceable.States.Attacking:
-						if(p.IsTargetInRange())
+						if(thinkingPlaceable.IsTargetInRange())
 						{
-							if(Time.time >= p.lastBlowTime + p.attackRatio)
+							if(Time.time >= thinkingPlaceable.lastBlowTime + thinkingPlaceable.attackRatio)
 							{
-								p.DealBlow();
+								thinkingPlaceable.DealBlow();
 								//Animation will produce the damage, calling animation events OnDealDamage and OnProjectileFired. See ThinkingPlaceable
 							}
 						}
@@ -136,8 +133,8 @@ namespace UnityRoyale
 					case ThinkingPlaceable.States.Dead:
 						Debug.LogError("A dead ThinkingPlaceable shouldn't be in this loop");
 						break;
-                }
-            }
+				}
+			}
 
 			Projectile currProjectile;
 			float progressToTarget;
@@ -180,15 +177,15 @@ namespace UnityRoyale
             bool targetFound = false;
             float closestDistanceSqr = Mathf.Infinity; //anything closer than here becomes the new designated target
 
-            for(int i=0; i<list.Count; i++)
-            {                
-				float sqrDistance = (p - list[i].transform.position).sqrMagnitude;
-                if(sqrDistance < closestDistanceSqr)
-                {
-                    t = list[i];
-                    closestDistanceSqr = sqrDistance;
-                    targetFound = true;
-                }
+            foreach (var thinkingPlaceable in list)
+            {
+	            float sqrDistance = (p - thinkingPlaceable.transform.position).sqrMagnitude;
+	            if(sqrDistance < closestDistanceSqr)
+	            {
+		            t = thinkingPlaceable;
+		            closestDistanceSqr = sqrDistance;
+		            targetFound = true;
+	            }
             }
 
             return targetFound;
@@ -203,7 +200,7 @@ namespace UnityRoyale
                 //Prefab to spawn is the associatedPrefab if it's the Player faction, otherwise it's alternatePrefab. But if alternatePrefab is null, then first one is taken
                 GameObject prefabToSpawn = (pFaction == Placeable.Faction.Player) ? pDataRef.associatedPrefab : ((pDataRef.alternatePrefab == null) ? pDataRef.associatedPrefab : pDataRef.alternatePrefab);
                 GameObject newPlaceableGO = Instantiate<GameObject>(prefabToSpawn, position + cardData.relativeOffsets[pNum], rot);
-                
+
                 SetupPlaceable(newPlaceableGO, pDataRef, pFaction);
 
 				appearEffectPool.UseParticles(position + cardData.relativeOffsets[pNum]);
@@ -243,7 +240,7 @@ namespace UnityRoyale
                         {
                             bScript.OnDie += OnCastleDead;
                         }
-                        
+
                         navMesh.BuildNavMesh(); //rebake the Navmesh
                         break;
 
@@ -290,16 +287,14 @@ namespace UnityRoyale
             c.OnDie -= OnCastleDead;
             gameOver = true; //stops the thinking loop
 
-			//stop all the ThinkingPlaceables		
-			ThinkingPlaceable thkPl;
-			for(int pN=0; pN<allThinkingPlaceables.Count; pN++)
-            {
-				thkPl = allThinkingPlaceables[pN];
-				if(thkPl.state != ThinkingPlaceable.States.Dead)
+			//stop all the ThinkingPlaceables
+			foreach (var thinkingPlaceable in allThinkingPlaceables)
+			{
+				if(thinkingPlaceable.state != ThinkingPlaceable.States.Dead)
 				{
-					thkPl.Stop();
-					thkPl.transform.LookAt(c.transform.position);
-					UIManager.RemoveHealthUI(thkPl);
+					thinkingPlaceable.Stop();
+					thinkingPlaceable.transform.LookAt(c.transform.position);
+					UIManager.RemoveHealthUI(thinkingPlaceable);
 				}
 			}
 
@@ -315,7 +310,7 @@ namespace UnityRoyale
         private void OnPlaceableDead(Placeable p)
         {
             p.OnDie -= OnPlaceableDead; //remove the listener
-            
+
             switch(p.pType)
             {
                 case Placeable.PlaceableType.Unit:
@@ -335,7 +330,7 @@ namespace UnityRoyale
 					b.OnDealDamage -= OnPlaceableDealtDamage;
 					b.OnProjectileFired -= OnProjectileFired;
                     StartCoroutine(RebuildNavmesh()); //need to fix for normal buildings
-					
+
 					//we don't dispose of the Castle
 					if(p.pType != Placeable.PlaceableType.Castle)
 						StartCoroutine(Dispose(b));
@@ -368,58 +363,70 @@ namespace UnityRoyale
 
         private void AddPlaceableToList(ThinkingPlaceable p)
         {
-			allThinkingPlaceables.Add(p);
+	        allThinkingPlaceables.Add(p);
 
-			if(p.faction == Placeable.Faction.Player)
-            {
-				allPlayers.Add(p);
-            	
-				if(p.pType == Placeable.PlaceableType.Unit)
-                    playerUnits.Add(p);
-				else
-                    playerBuildings.Add(p);
-            }
-            else if(p.faction == Placeable.Faction.Opponent)
-            {
-				allOpponents.Add(p);
-            	
-				if(p.pType == Placeable.PlaceableType.Unit)
-                    opponentUnits.Add(p);
-				else
-                    opponentBuildings.Add(p);
-            }
-            else
-            {
-                Debug.LogError("Error in adding a Placeable in one of the player/opponent lists");
-            }
+	        switch (p.faction)
+	        {
+		        case Placeable.Faction.Player:
+		        {
+			        allPlayers.Add(p);
+
+			        if(p.pType == Placeable.PlaceableType.Unit)
+				        playerUnits.Add(p);
+			        else
+				        playerBuildings.Add(p);
+			        break;
+		        }
+		        case Placeable.Faction.Opponent:
+		        {
+			        allOpponents.Add(p);
+
+			        if(p.pType == Placeable.PlaceableType.Unit)
+				        opponentUnits.Add(p);
+			        else
+				        opponentBuildings.Add(p);
+			        break;
+		        }
+		        case Placeable.Faction.None:
+			        break;
+		        default:
+			        Debug.LogError("Error in adding a Placeable in one of the player/opponent lists");
+			        break;
+	        }
         }
 
         private void RemovePlaceableFromList(ThinkingPlaceable p)
         {
-			allThinkingPlaceables.Remove(p);
+	        allThinkingPlaceables.Remove(p);
 
-			if(p.faction == Placeable.Faction.Player)
-            {
-				allPlayers.Remove(p);
-            	
-				if(p.pType == Placeable.PlaceableType.Unit)
-                    playerUnits.Remove(p);
-				else
-                    playerBuildings.Remove(p);
-            }
-            else if(p.faction == Placeable.Faction.Opponent)
-            {
-				allOpponents.Remove(p);
-            	
-				if(p.pType == Placeable.PlaceableType.Unit)
-                    opponentUnits.Remove(p);
-				else
-                    opponentBuildings.Remove(p);
-            }
-            else
-            {
-                Debug.LogError("Error in removing a Placeable from one of the player/opponent lists");
-            }
+	        switch (p.faction)
+	        {
+		        case Placeable.Faction.Player:
+		        {
+			        allPlayers.Remove(p);
+
+			        if(p.pType == Placeable.PlaceableType.Unit)
+				        playerUnits.Remove(p);
+			        else
+				        playerBuildings.Remove(p);
+			        break;
+		        }
+		        case Placeable.Faction.Opponent:
+		        {
+			        allOpponents.Remove(p);
+
+			        if(p.pType == Placeable.PlaceableType.Unit)
+				        opponentUnits.Remove(p);
+			        else
+				        opponentBuildings.Remove(p);
+			        break;
+		        }
+		        case Placeable.Faction.None:
+			        break;
+		        default:
+			        Debug.LogError("Error in removing a Placeable from one of the player/opponent lists");
+			        break;
+	        }
         }
     }
 }
