@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityRoyale;
 
@@ -49,14 +50,11 @@ public class HealthBarController
     private float _currentHp;
     private readonly float _originalHp;
 
-    private readonly Color _red = new Color32(252, 35, 13, 255);
-    private readonly Color _blue = new Color32(31, 132, 255, 255);
-
     public HealthBarController(IThinkingPlaceable placeable)
     {
-        _originalHp = _currentHp = placeable.hitPoints;
-        PositionToFollow = placeable.position;
-        BarColor = placeable.faction == Faction.Player ? _red : _blue;
+        _originalHp = _currentHp = placeable.HitPoints;
+        PositionToFollow = placeable.Position;
+        BarColor = placeable.faction.GetColor();
         LocalPosition = new Vector3(0f,
             (placeable.pType == PlaceableType.Unit) ? 3f : 6f,
             (placeable.pType == PlaceableType.Unit)
@@ -68,12 +66,4 @@ public class HealthBarController
     {
         return newHp > 0f ? newHp / _originalHp : 0f;
     }
-}
-
-public interface IThinkingPlaceable
-{
-    public float hitPoints { get; }
-    public Vector3 position { get; }
-    public Faction faction { get; }
-    public PlaceableType pType { get; }
 }

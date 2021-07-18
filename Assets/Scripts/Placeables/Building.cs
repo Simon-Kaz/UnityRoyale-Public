@@ -21,7 +21,7 @@ namespace UnityRoyale
         {
 			pType = pData.pType;
             faction = pFaction;
-            hitPoints = pData.hitPoints;
+            HitPoints = pData.hitPoints;
             targetType = pData.targetType;
 			attackAudioClip = pData.attackClip;
 			dieAudioClip = pData.dieClip;

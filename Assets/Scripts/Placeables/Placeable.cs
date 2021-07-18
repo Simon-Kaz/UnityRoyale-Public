@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,8 +19,8 @@ namespace UnityRoyale
 
     public enum Faction
     {
-        Player, //Red
-        Opponent, //Blue
+        Player,
+        Opponent,
         None,
     }
 
@@ -37,5 +38,27 @@ namespace UnityRoyale
         Building,
         Spell,
         Castle, //special type of building
+    }
+
+    public enum FactionColor
+    {
+        Red,
+        Blue
+    }
+
+    public static class FactionExtension
+    {
+        public static Color GetColor(this Faction faction)
+        {
+            return faction switch
+            {
+                Faction.Opponent => new Color32(252, 35, 13, 255),
+                Faction.Player => new Color32(31, 132, 255, 255),
+                Faction.None => throw new ArgumentOutOfRangeException(nameof(faction), faction,
+                    "Specified faction's color has not been provided"),
+                _ => throw new ArgumentOutOfRangeException(nameof(faction), faction,
+                    "Specified faction's color has not been provided")
+            };
+        }
     }
 }

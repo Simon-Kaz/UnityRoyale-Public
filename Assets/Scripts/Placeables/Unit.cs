@@ -28,7 +28,7 @@ namespace UnityRoyale
         public void Activate(Faction pFaction, PlaceableData pData)
         {
             faction = pFaction;
-            hitPoints = pData.hitPoints;
+            HitPoints = pData.hitPoints;
             targetType = pData.targetType;
             attackRange = pData.attackRange;
             attackRatio = pData.attackRatio;

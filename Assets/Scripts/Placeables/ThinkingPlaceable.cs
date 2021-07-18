@@ -26,8 +26,8 @@ namespace UnityRoyale
 
         [HideInInspector] public ThinkingPlaceable target;
         [HideInInspector] public HealthBar healthBar;
-        [HideInInspector] public float hitPoints { get; set; }
-        public Vector3 position => transform.position;
+        [HideInInspector] public float HitPoints { get; set; }
+        public Vector3 Position => transform.position;
 
         [HideInInspector] public float attackRange;
         [HideInInspector] public float attackRatio;
@@ -104,15 +104,15 @@ namespace UnityRoyale
 
         public float SufferDamage(float amount)
         {
-            hitPoints -= amount;
+            HitPoints -= amount;
             //Debug.Log("Suffering damage, new health: " + hitPoints, gameObject);
             if(state != States.Dead
-				&& hitPoints <= 0f)
+				&& HitPoints <= 0f)
             {
                 Die();
             }
 
-            return hitPoints;
+            return HitPoints;
         }
 
 		public virtual void Stop()
