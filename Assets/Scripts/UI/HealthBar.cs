@@ -12,7 +12,7 @@ namespace UnityRoyale
         private HealthBarController healthBarController;
         private bool _isHidden = true;
 
-        public void Initialise(ThinkingPlaceable placeable)
+        public void Initialise(IThinkingPlaceable placeable)
         {
             healthBarController = new HealthBarController(placeable);
 
@@ -43,17 +43,17 @@ namespace UnityRoyale
 
 public class HealthBarController
 {
-    public Vector3 PositionToFollow { get; }
+    public Vector3 PositionToFollow => _placeable.Position;
     public Color BarColor { get; }
     public Vector3 LocalPosition { get; }
 
-    private float _currentHp;
+    private readonly IThinkingPlaceable _placeable;
     private readonly float _originalHp;
 
     public HealthBarController(IThinkingPlaceable placeable)
     {
-        _originalHp = _currentHp = placeable.HitPoints;
-        PositionToFollow = placeable.Position;
+        _placeable = placeable;
+        _originalHp = placeable.HitPoints;
         BarColor = placeable.faction.GetColor();
         LocalPosition = new Vector3(0f,
             (placeable.pType == PlaceableType.Unit) ? 3f : 6f,

@@ -45,6 +45,24 @@ public class HealthBarControllerTests : MonoBehaviour
     }
 
     [Test]
+    public void TracksPositionChanges()
+    {
+        var initialPosition = new Vector3(0, 0, 0);
+        var updatedPosition = new Vector3(0, 1, 2);
+
+        var thinkingPlaceable = Substitute.For<IThinkingPlaceable>();
+        thinkingPlaceable.faction.Returns(Faction.Opponent);
+        thinkingPlaceable.Position.Returns(initialPosition);
+        thinkingPlaceable.pType.Returns(PlaceableType.Unit);
+
+        var healthBarController = new HealthBarController(thinkingPlaceable);
+        Assert.That(healthBarController.PositionToFollow, Is.EqualTo(initialPosition));
+
+        thinkingPlaceable.Position.Returns(updatedPosition);
+        Assert.That(healthBarController.PositionToFollow, Is.EqualTo(updatedPosition));
+    }
+
+    [Test]
     public void InitialisesAtCorrectPosition_ForBuilding()
     {
         var thinkingPlaceable = Substitute.For<IThinkingPlaceable>();
